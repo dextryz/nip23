@@ -25,9 +25,6 @@ type Article struct {
 
 func (s *Article) Publish(cfg *Config) error {
 
-	log.Println(s)
-	log.Println(cfg)
-
 	ctx := context.Background()
 
 	var sk string
