@@ -18,9 +18,10 @@ type Config struct {
 }
 
 type Article struct {
-	Title   string   `json:"title"`
-	Content string   `json:"content"`
-	Tags    []string `json:"tags"`
+	Title      string   `json:"title"`
+	Content    string   `json:"content"`
+	Tags       []string `json:"tags"`
+	References []string `json:"references"`
 }
 
 func (s *Article) Publish(cfg *Config) error {
@@ -42,6 +43,9 @@ func (s *Article) Publish(cfg *Config) error {
 	tags = append(tags, nostr.Tag{"title", s.Title})
 	for _, v := range s.Tags {
 		tags = append(tags, nostr.Tag{"t", v})
+	}
+	for _, v := range s.References {
+		tags = append(tags, nostr.Tag{"r", v})
 	}
 
 	e := nostr.Event{
@@ -85,11 +89,14 @@ func (s *Article) Publish(cfg *Config) error {
 
 func loadConfig() (*Config, error) {
 
-	env := os.Getenv("NOSTR_ZET")
+	env, ok := os.LookupEnv("NOSTR_ZET")
+	if !ok {
+		log.Fatalln("NOSTR_ZET env var not set")
+	}
 
 	data, err := os.ReadFile(env)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Config file: %v", err)
 	}
 
 	var cfg Config
@@ -110,15 +117,21 @@ func main() {
 		tags = append(tags, strings.Trim(v, " "))
 	}
 
+	var refs []string
+	for _, v := range strings.Split(args[3], ",") {
+		refs = append(refs, strings.Trim(v, " "))
+	}
+
 	content, err := os.ReadFile(args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	a := Article{
-		Title:   args[1],
-		Content: string(content),
-		Tags:    tags,
+		Title:      args[1],
+		Content:    string(content),
+		Tags:       tags,
+		References: refs,
 	}
 
 	cfg, err := loadConfig()
