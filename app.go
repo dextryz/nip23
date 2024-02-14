@@ -1,4 +1,4 @@
-package main
+package zet
 
 import (
 	"context"
@@ -87,14 +87,9 @@ func (s *Article) Publish(cfg *Config) error {
 	return nil
 }
 
-func loadConfig() (*Config, error) {
+func LoadConfig(path string) (*Config, error) {
 
-	env, ok := os.LookupEnv("NOSTR_ZET")
-	if !ok {
-		log.Fatalln("NOSTR_ZET env var not set")
-	}
-
-	data, err := os.ReadFile(env)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatalf("Config file: %v", err)
 	}
@@ -108,7 +103,7 @@ func loadConfig() (*Config, error) {
 	return &cfg, nil
 }
 
-func main() {
+func Main() error {
 
 	args := os.Args[1:]
 
@@ -124,7 +119,7 @@ func main() {
 
 	content, err := os.ReadFile(args[0])
 	if err != nil {
-		log.Fatal(err)
+        return err
 	}
 
 	a := Article{
@@ -134,13 +129,20 @@ func main() {
 		References: refs,
 	}
 
-	cfg, err := loadConfig()
+	path, ok := os.LookupEnv("NOSTR_ZET")
+	if !ok {
+		log.Fatalln("NOSTR_ZET env var not set")
+	}
+
+	cfg, err := LoadConfig(path)
 	if err != nil {
-		log.Fatal(err)
+        return err
 	}
 
 	err = a.Publish(cfg)
 	if err != nil {
-		log.Fatal(err)
+        return err
 	}
+
+    return nil
 }
