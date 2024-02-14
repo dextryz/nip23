@@ -1,8 +1,8 @@
-module github.com/dextryz/zet
+module github.com/dextryz/nip23
 
-go 1.21.0
+go 1.22.0
 
-require github.com/nbd-wtf/go-nostr v0.28.3
+require github.com/nbd-wtf/go-nostr v0.28.6
 
 require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
